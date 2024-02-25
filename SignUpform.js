@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function SignUpForm() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -11,28 +11,49 @@ function SignUpForm() {
     setIsLoading(true);
 
     try {
-      await signUp(email, password);
+      const idToken = await signInWithEmailAndPassword(email, password);
+      console.log('ID Token:', idToken); // Log the ID token (JWT) in the browser console
       setEmail('');
       setPassword('');
-      setFeedbackMessage('Signup successful!');
+      setFeedbackMessage('Login successful!');
     } catch (error) {
-      setFeedbackMessage('Signup failed. Please try again.');
+      setFeedbackMessage('Authentication failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signUp = (email, password) => {
+  const signInWithEmailAndPassword = (email, password) => {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject(new Error('Signup failed'));
-      }, 2000);
+      fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=YOUR_API_KEY', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Authentication failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        resolve(data.idToken);
+      })
+      .catch(error => {
+        reject(error);
+      });
     });
   };
 
   return (
     <div>
-      <h2>Sign Up Form</h2>
+      <h2>Login Form</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -49,7 +70,7 @@ function SignUpForm() {
           required
         /><br />
         <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Sending request...' : 'Sign Up'}
+          {isLoading ? 'Sending request...' : 'Login'}
         </button>
       </form>
       {feedbackMessage && <div>{feedbackMessage}</div>}
@@ -57,4 +78,4 @@ function SignUpForm() {
   );
 }
 
-export default SignUpForm;
+export default LoginForm;
