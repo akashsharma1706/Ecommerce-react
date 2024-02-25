@@ -1,21 +1,19 @@
 // AuthContext.js
-import React, { createContext, useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  const history = useHistory();
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
 
   const login = (token) => {
     setToken(token);
-    history.push('/profile'); // Redirect to profile page after login
+    localStorage.setItem('token', token); // Store token in localStorage
   };
 
   const logout = () => {
     setToken(null);
-    history.push('/login'); // Redirect to login page after logout
+    localStorage.removeItem('token'); // Remove token from localStorage
   };
 
   return (
