@@ -6,19 +6,27 @@ function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    // Logic for authenticating user and obtaining token
-    const token = 'sample_token'; // Sample token for demonstration
-    login(token);
+  const handleLogin = async () => {
+    try {
+      //Firebase Authentication API to login
+      await login(email, password);
+      setError(''); 
+      // Redirect to products page after successful login
+      history.push('/products');
+    } catch (error) {
+      setError('Failed to log in. Please check your credentials.'); 
+    }
   };
 
   return (
     <div>
-      <h2>Login Page</h2>
-      <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <h2>Login</h2>
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
       <button onClick={handleLogin}>Login</button>
+      {error && <div>{error}</div>} 
     </div>
   );
 }
